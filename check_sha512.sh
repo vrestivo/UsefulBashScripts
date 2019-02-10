@@ -12,6 +12,11 @@
 # signature file extension
 EXT=".sha512"
 CMD=/usr/bin/sha512sum
+RED='\e[1;31m'
+GREEN='\e[1;32m'
+YELLOW='\e[1;33m'
+NO_COLOR='\e[0m'
+
 
 # check for a file argument
 if [ $# -lt 1 ] || [ $# -gt 2 ] ; then
@@ -19,44 +24,45 @@ if [ $# -lt 1 ] || [ $# -gt 2 ] ; then
   exit -1
 fi
 
+
 if [ ! -x $CMD ] ; then 
   echo "$CMD not foud"
   exit -1
 fi
 
-SIG_FILE=$1$EXT 
 
+SIG_FILE=$1$EXT 
 if [ $# == 2 ] ; then
   SIG_FILE=$2
 fi
 
-#TODO delete debugging
-echo -e "\nChecking file: $1"
-echo -e "Against Signature file: $SIG_FILE\n"
-
 
 if [ ! -r $1 ] ; then
-  echo "error: can't read: $1"
+  echo -e "${RED}ERROR: can't read: $1${NO_COLOR}"
   exit -1
 fi 
- 
+
+
 if [ ! -r $SIG_FILE ] ; then 
-  echo "error: can't read the signagure file: $SIG_FILE"
+  echo -e "${RED}ERROR: can't read the signagure file: $SIG_FILE${NO_COLOR}"
   exit -1
 fi
 
 
+# conduct and actual test
+echo -e "\n${YELLOW}Checking file: $1${NO_COLOR}"
+echo -e "Against Signature file: $SIG_FILE"
 
-echo "checking $1"
-grep $($CMD $1) $SIG_FILE
+grep $($CMD $1) $SIG_FILE > /dev/null
 
 # print result message for clarity
 if [ $?  == 0 ] ; then
   echo
-  echo "Signature Matches!"
+  echo -e "${GREEN}Signature Matches!\n\n${NO_COLOR}"
 else
-  echo
+  echo -e "$RED"
   echo "*************************"
   echo "Signature DOES NOT match!"
   echo "*************************"
+  echo -e "$NO_COLOR\n\n"
 fi
